@@ -1,2 +1,2 @@
-# diff-lrkw
-Diff tool to compare exported Adobe Lightroom Keywords
+# sort-lrkw
+A command to sort a keyword file exported from Adobe Lightroom 5.
