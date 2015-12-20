@@ -1,13 +1,14 @@
 import argparse
 from io import StringIO
+import os
 import re
 import sys
 import unicodedata
 
 #-----------------------------------------------------------------------------
-# profiles are tuples of (Unicode-Normalization-Form, EOL-Code)
-_profiles = {'win': ('NFC', '\r\n'),
-             'mac': ('NFD', '\n')}
+# profiles are tuples of (Unicode-Normalization-Form)
+_profiles = {'win': 'NFC',
+             'mac': 'NFD'}
 _Msg_BrokenData_Depth = 'Broken tree structure; depth %d after %d.' \
                         ' (file:%s, line:%d)'
 
@@ -45,14 +46,14 @@ class KeywordNode:
         if not isinstance(node, KeywordNode): raise
         self.children.append(node)
 
-    def stringify(self, nform, eol, buf=None, depth=0):
+    def stringify(self, nform, buf=None, depth=0):
         if buf == None:
             buf = StringIO()
         for node in self.children:
             buf.write('\t' * depth)
             buf.write(unicodedata.normalize(nform, node.value))
-            buf.write(eol)
-            node.stringify(nform, eol, buf, depth+1)
+            buf.write('\n')
+            node.stringify(nform, buf, depth+1)
         return buf.getvalue()
 
 def parse_keyword_file(filename):
@@ -116,7 +117,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     filename = args.filename[0]
-    nform, eolcode= _profiles[args.prof[0]]
+    nform = _profiles[args.prof[0]]
 
     keywords = parse_keyword_file(filename)
-    sys.stdout.write(keywords.stringify(nform, eolcode))
+    sys.stdout.write(keywords.stringify(nform))
